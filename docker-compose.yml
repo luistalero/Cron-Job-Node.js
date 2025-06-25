@@ -1,0 +1,43 @@
+services:
+  # Servicio de la aplicación Node.js
+  app:
+    environment:
+      - NODE_ENV=local
+    hostname: backend-server
+    env_file:
+      - src/.env
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: local
+    container_name: node-cron-email-app # Nombre del contenedor
+    restart: unless-stopped # Reinicia el contenedor si se detiene
+    ports:
+      - 3000:3000
+    command: >
+      sh -c "npm run dev"
+    volumes:
+      - ./src/src:/app/src  
+    depends_on:
+      - mariadb
+  # Servicio de la base de datos MariaDB
+  mariadb:
+    image: mariadb:10.6 # Usa una imagen oficial de MariaDB
+    container_name: email-scheduler-db # Nombre del contenedor de la base de datos
+    restart: always # Reinicia el contenedor si se detiene
+    environment:
+      # Variables de entorno para la configuración de MariaDB
+      MYSQL_ROOT_PASSWORD: catalinallanes02 # Contraseña para el usuario root
+      MYSQL_DATABASE: email_scheduler_db        # Nombre de la base de datos a crear
+      MYSQL_USER: user              # Usuario de la base de datos
+      MYSQL_PASSWORD: catalinallanes02    # Contraseña para el usuario de la base de datos
+    ports:
+      # Mapea el puerto del contenedor (3306) al puerto de tu máquina local (3306)
+      - "3306:3306"
+    volumes:
+      - ./dbdata:/var/lib/mysql
+      - ./dumps:/docker-entrypoint-initdb.d
+
+# Volúmenes que se usarán para persistir los datos
+volumes:
+  mariadb_data: # Define un volumen llamado 'mariadb_data'

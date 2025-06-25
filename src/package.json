@@ -1,0 +1,24 @@
+{
+  "name": "node-cron-job",
+  "version": "1.0.0",
+  "description": "API para programación de correos con CronJob",
+  "main": "./src/src/app.js",
+  "scripts": {
+    "start": "node ./src/scr/app.js",
+    "dev": "nodemon ./src/app.js"
+  },
+  "keywords": ["node.js", "cronjob", "email", "api", "docker"],
+  "author": "Luis Talero",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "node-cron": "^4.1.1",
+    "nodemailer": "^7.0.3",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.2"
+  }
+}
