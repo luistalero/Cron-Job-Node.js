@@ -23,3 +23,4 @@ CREATE TABLE scheduled_emails (
 CREATE INDEX idx_scheduled_send_time ON scheduled_emails(scheduled_send_time);
 CREATE INDEX idx_user_id ON scheduled_emails(user_id);
 CREATE INDEX idx_status ON scheduled_emails(status);
+

@@ -57,7 +57,108 @@ function getConnection() {
     return pool.getConnection()
 }
 
+// Nueva función para obtener todos los usuarios
+async function getAllUsers() {
+    let connection
+    try {
+        connection = await getConnection()
+        const query = `SELECT id, email, username FROM users`
+        const [rows] = await connection.execute(query)
+        return rows
+    } catch (error) {
+        console.error('Error al obtener todos los usuarios:', error)
+        throw error
+    } finally {
+        if (connection) connection.release()
+    }
+}
+
+
+// Función modificada para insertar un correo programado, ahora con campo 'recipients'
+async function insertScheduledEmail(userId, subject, body, scheduledSendTime, recipients) {
+    let connection
+    try {
+        connection = await getConnection()
+        const recipientsJson = JSON.stringify(recipients) // Convertir el array a string JSON
+        const query = `
+            INSERT INTO scheduled_emails (user_id, subject, body, scheduled_send_time, recipients, status)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `
+        const [result] = await connection.execute(query, [userId, subject, body, scheduledSendTime, recipientsJson, 'pending'])
+        console.log('Correo programado guardado en la base de datos. ID:', result.insertId)
+        return result.insertId
+    } catch (error) {
+        console.error('Error al insertar correo programado en la base de datos:', error)
+        throw error
+    } finally {
+        if (connection) connection.release()
+    }
+}
+
+// Función modificada para obtener correos pendientes de envío, ahora con campo 'recipients'
+async function getPendingEmailsToSend() {
+    let connection
+    try {
+        connection = await getConnection()
+        const query = `
+            SELECT id, user_id, subject, body, scheduled_send_time, recipients
+            FROM scheduled_emails
+            WHERE status = 'pending' AND scheduled_send_time <= NOW()
+        `
+        const [rows] = await connection.execute(query)
+        // Parsear el string JSON de recipients de vuelta a un array para cada fila
+        return rows.map(row => ({
+            ...row,
+            recipients: JSON.parse(row.recipients)
+        }))
+    } catch (error) {
+        console.error('Error al obtener correos pendientes de envío:', error)
+        throw error
+    } finally {
+        if (connection) connection.release()
+    }
+}
+
+// Función para actualizar el estado de un correo (sin cambios)
+async function updateEmailStatus(emailId, status, sentAt = null) {
+    let connection
+    try {
+        connection = await getConnection()
+        let query
+        let params
+
+        if (sentAt) {
+            query = `
+                UPDATE scheduled_emails
+                SET status = ?, sent_at = ?
+                WHERE id = ?
+            `
+            params = [status, sentAt, emailId]
+        } else {
+            query = `
+                UPDATE scheduled_emails
+                SET status = ?
+                WHERE id = ?
+            `
+            params = [status, emailId]
+        }
+        
+        await connection.execute(query, params)
+        console.log(`Estado del correo ${emailId} actualizado a: ${status}`)
+    } catch (error) {
+        console.error(`Error al actualizar el estado del correo ${emailId}:`, error)
+        throw error
+    } finally {
+        if (connection) connection.release()
+    }
+}
+
+
 module.exports = {
     connectDB,
-    getConnection
+    getConnection,
+    getAllUsers,               // Exportar la nueva función
+    insertScheduledEmail,      // Exportar la función modificada
+    getPendingEmailsToSend,    // Exportar la función modificada
+    updateEmailStatus          // Exportar la función
 }
