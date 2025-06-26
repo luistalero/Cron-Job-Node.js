@@ -73,15 +73,13 @@ async function getAllUsers() {
     }
 }
 
-
-// Función modificada para insertar un correo programado, ahora con campo 'recipients'
 async function insertScheduledEmail(userId, subject, body, scheduledSendTime, recipients) {
     let connection
     try {
         connection = await getConnection()
-        const recipientsJson = JSON.stringify(recipients) // Convertir el array a string JSON
+        const recipientsJson = JSON.stringify(recipients)
         const query = `
-            INSERT INTO scheduled_emails (user_id, subject, body, scheduled_send_time, recipients, status)
+            INSERT INTO scheduled_emails (user_id, subject, body, scheduled_send_time, status, recipients)
             VALUES (?, ?, ?, ?, ?, ?)
         `
         const [result] = await connection.execute(query, [userId, subject, body, scheduledSendTime, recipientsJson, 'pending'])
@@ -95,13 +93,12 @@ async function insertScheduledEmail(userId, subject, body, scheduledSendTime, re
     }
 }
 
-// Función modificada para obtener correos pendientes de envío, ahora con campo 'recipients'
 async function getPendingEmailsToSend() {
     let connection
     try {
         connection = await getConnection()
         const query = `
-            SELECT id, user_id, subject, body, scheduled_send_time, recipients
+            SELECT id, user_id, subject, body, scheduled_send_time
             FROM scheduled_emails
             WHERE status = 'pending' AND scheduled_send_time <= NOW()
         `

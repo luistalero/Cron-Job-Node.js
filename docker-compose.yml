@@ -13,7 +13,7 @@ services:
     container_name: node-cron-email-app # Nombre del contenedor
     restart: unless-stopped # Reinicia el contenedor si se detiene
     ports:
-      - 3000:3000
+      - 3001:3001
     command: >
       sh -c "npm run dev"
     volumes:

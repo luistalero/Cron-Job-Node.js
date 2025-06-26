@@ -10,7 +10,7 @@ RUN npm install && npm cache clean --force
 
 COPY src .
 
-EXPOSE 3000
+EXPOSE 3001
 
 ENV TZ America/Bogota
 

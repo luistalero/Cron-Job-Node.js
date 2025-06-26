@@ -5,18 +5,14 @@ const startEmailCronJob = require('./services/cronScheduler')
 
 const appRoutes = require('./routes/appRoutes')
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3001
 
-// Conexión a la base de datos
 connectDB()
 
-// Iniciar el cron job
 startEmailCronJob()
 
-// Usar las rutas
 app.use('/', appRoutes)
 
-// Iniciar el servidor
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`)
 })

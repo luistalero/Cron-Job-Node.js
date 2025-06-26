@@ -1,12 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const { insertScheduledEmail, getAllUsers } = require('./database/db') // Importa las funciones necesarias
+const { insertScheduledEmail, getAllUsers } = require('../database/db')
 
 router.get('/', (req, res) => {
     res.send('¡API de Programación de Correos funcionando! El CronJob está activo y esperando correos programados.')
 })
 
-// Nuevo endpoint para obtener todos los usuarios
 router.get('/users', async (req, res) => {
     try {
         const users = await getAllUsers()
@@ -17,18 +16,14 @@ router.get('/users', async (req, res) => {
     }
 })
 
-// Ruta modificada para programar un correo, ahora acepta un array de destinatarios 'to'
 router.post('/schedule-email', async (req, res) => {
     const { userId, to, subject, body, scheduledTime } = req.body 
     
-    // 'to' ahora es un array de strings de correos electrónicos
     if (!userId || !to || !Array.isArray(to) || to.length === 0 || !subject || !body || !scheduledTime) {
         return res.status(400).json({ message: 'Faltan campos obligatorios o formato incorrecto: userId (ID del remitente), to (array de emails destinatarios), subject, body, scheduledTime' })
     }
 
     try {
-        // userId aquí se refiere al usuario que *programa* el correo, no necesariamente un destinatario.
-        // El array 'to' se guarda como 'recipients' en la BD.
         const emailId = await insertScheduledEmail(userId, subject, body, new Date(scheduledTime), to)
         res.status(201).json({ 
             message: 'Correo programado exitosamente.', 

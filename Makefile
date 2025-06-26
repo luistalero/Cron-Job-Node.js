@@ -4,6 +4,12 @@ dev:
 start:
 	docker-compose start
 
+log-a:
+	docker compose logs app
+
+log-m:
+	docker compose logs mariadb
+
 stop:
 	docker-compose stop
 
